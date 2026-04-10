@@ -265,7 +265,7 @@ header {
     <div class="badge">
       <span class="badge-label">
         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18a5 5 0 0 0-10 0"></path><line x1="12" y1="2" x2="12" y2="9"></line><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"></line><line x1="1" y1="18" x2="3" y2="18"></line><line x1="21" y1="18" x2="23" y2="18"></line><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"></line><line x1="23" y1="22" x2="1" y2="22"></line><polyline points="8 22 8 18 16 18 16 22"></polyline></svg>
-        Outside
+        Ambient
       </span>
       <span class="badge-value cool" id="b-outside">—</span>
     </div>
@@ -389,6 +389,18 @@ header {
       </div>
     </div>
     <div class="chart-container"><canvas id="freqChart"></canvas></div>
+  </div>
+
+  <div class="chart-card full-width">
+    <div class="chart-header">
+      <div class="section-title" style="margin:0">Condenser Performance</div>
+      <div class="chart-legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#00c8ff"></div>Ambient</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#ffb020"></div>Liquid Pipe1</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#c084fc"></div>Condensing</div>
+      </div>
+    </div>
+    <div class="chart-container"><canvas id="outsideTempChart"></canvas></div>
   </div>
 
   <div class="ctrl-card">
@@ -697,20 +709,24 @@ header {
 
       <div id="run-stats-block" style="display:none; margin-top: 12px; border-top: 1px solid var(--border); padding-top: 10px;">
         <div class="sub-label" style="margin:0 0 6px 0;">LAST RUN RESULT</div>
-        <div style="display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:center;">
-          <span class="ctrl-label">Execution time</span>   <span id="rs-exec"    class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Heat loss</span>        <span id="rs-hloss"   class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Base COP</span>         <span id="rs-cop"     class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Thermal mass</span>     <span id="rs-tmass"   class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Expected consumption</span>  <span id="rs-econs"   class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Expected production</span>   <span id="rs-eprod"   class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Solar used by HP</span>      <span id="rs-solar"   class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Total solar generation</span><span id="rs-solar-total" class="ctrl-value" style="text-align:right;">—</span>
-          <span class="ctrl-label">Expected cost</span>         <span id="rs-cost"    class="ctrl-value" style="text-align:right; color:var(--accent2);">—</span>
-          <span class="ctrl-label">Expected cost incl. tax</span><span id="rs-costtax" class="ctrl-value" style="text-align:right; color:#c084fc;">—</span>
+          <div style="display:grid; grid-template-columns:1fr auto; gap:4px 10px; align-items:center;">  
+            <span class="ctrl-label">Last result time</span> <span id="rs-time" class="ctrl-value" style="text-align:right;">—</span>
+  
+            <span class="ctrl-label">Execution time</span>   <span id="rs-exec"    class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Heat loss</span>        <span id="rs-hloss"   class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Base COP</span>         <span id="rs-cop"     class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Thermal mass</span>     <span id="rs-tmass"   class="ctrl-value" style="text-align:right;">—</span>
+            
+            <div class="sub-label" style="grid-column: 1 / -1; margin: 12px 0 4px 0;">EXPECTED TOTALS</div>
+
+            <span class="ctrl-label">Consumption</span>           <span id="rs-econs"   class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Production</span>            <span id="rs-eprod"   class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Solar used by HP</span>      <span id="rs-solar"   class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Total solar generation</span><span id="rs-solar-total" class="ctrl-value" style="text-align:right;">—</span>
+            <span class="ctrl-label">Cost</span>                  <span id="rs-cost"    class="ctrl-value" style="text-align:right; color:var(--accent);">—</span>
+          </div>
         </div>
       </div>
-    </div>
 
     <div class="ctrl-card physics-card">
       <div class="section-title">Physics Data (Daily Averages)</div>
@@ -733,7 +749,7 @@ header {
       </div>
 
       <div class="ctrl-row">
-        <span class="ctrl-label param-label">Avg Outside Temp<span class="tip-icon">?</span><span class="tip-box"><span class="tip-unit">°C</span>Average outdoor temperature yesterday. Used to calculate heat loss and COP correction.</span></span>
+        <span class="ctrl-label param-label">Avg Ambient Temp<span class="tip-icon">?</span><span class="tip-box"><span class="tip-unit">°C</span>Average outdoor temperature yesterday. Used to calculate heat loss and COP correction.</span></span>
         <div class="stepper"><button class="step-btn" onclick="step('raw-out', -0.1)">−</button><input type="number" class="step-input" id="raw-out-val" onchange="manualInput('raw-out', this.value)" /><button class="step-btn" onclick="step('raw-out', +0.1)">+</button></div>
       </div>
 
@@ -745,16 +761,6 @@ header {
       <div class="ctrl-row">
         <span class="ctrl-label param-label">Delta Room Temp<span class="tip-icon">?</span><span class="tip-box"><span class="tip-unit">°C (daily swing)</span>Difference between max and min room temp yesterday. Small delta = high thermal mass (house holds heat well).</span></span>
         <div class="stepper"><button class="step-btn" onclick="step('raw-delta', -0.1)">−</button><input type="number" class="step-input" id="raw-delta-val" onchange="manualInput('raw-delta', this.value)" /><button class="step-btn" onclick="step('raw-delta', +0.1)">+</button></div>
-      </div>
-
-      <div class="ctrl-row">
-        <span class="ctrl-label param-label">Min Output<span class="tip-icon">?</span><span class="tip-box"><span class="tip-unit">kW thermal</span>Minimum modulation your heat pump can run at. Solver will never plan below this when heating is needed. Default 3 kW.</span></span>
-        <div class="stepper"><button class="step-btn" onclick="step('raw-min-out', -0.1)">−</button><input type="number" class="step-input" id="raw-min-out-val" onchange="manualInput('raw-min-out', this.value)" /><button class="step-btn" onclick="step('raw-min-out', +0.1)">+</button></div>
-      </div>
-
-      <div class="ctrl-row">
-        <span class="ctrl-label param-label">Max Output<span class="tip-icon">?</span><span class="tip-box"><span class="tip-unit">kW thermal</span>Output cap sent to the solver. Set to rated HP output, or lower to limit noise or reduce peak load. E.g. 7 on a 10 kW unit = max 70% load.</span></span>
-        <div class="stepper"><button class="step-btn" onclick="step('raw-max-out', -0.1)">−</button><input type="number" class="step-input" id="raw-max-out-val" onchange="manualInput('raw-max-out', this.value)" /><button class="step-btn" onclick="step('raw-max-out', +0.1)">+</button></div>
       </div>
       
       <div class="ctrl-row">
@@ -865,7 +871,8 @@ const MODE_MAP = {
 const history = {
   timestamps: [], feed: [], ret: [], z1sp: [], z2sp: [], z1curr: [], z2curr: [],
   z1flow: [], z2flow: [], freq: [], mode: [], bin_comp: [], bin_boost: [], 
-  bin_defrost: [], bin_pump: [], bin_in1: [], bin_in6: [], cons: [], prod: []
+  bin_defrost: [], bin_pump: [], bin_in1: [], bin_in6: [], cons: [], prod: [],
+  outside: [], liquid_pipe: [], condensing: []
 };
 
 const pending = { 
@@ -877,7 +884,7 @@ const pending = {
   'z2-sp': null, 'z2-hyst': null, 'room-z2-sp': null,
   'flow-z1-sp': null, 'flow-z2-sp': null,
   'raw-heat': null, 'raw-elec': null, 'raw-run': null,
-  'raw-out': null, 'raw-room': null, 'raw-delta': null, 'raw-max-out': null, 'raw-min-out': null, 'raw-solar-factor': null,
+  'raw-out': null, 'raw-room': null, 'raw-delta': null, 'raw-solar-factor': null,
   'batt-soc': null, 'batt-max-dis': null,
   'cool-start-z1': null, 'cool-min-z1': null, 'dhw-thresh': null
 };
@@ -917,8 +924,6 @@ const LIMITS = {
   'raw-out': { min: -25.0, max: 40.0, step: 0.1 },
   'raw-room': { min: 10.0, max: 35.0, step: 0.1 },
   'raw-delta': { min: 0.0, max: 10.0, step: 0.1 },
-  'raw-max-out': { min: 1.0, max: 20.0, step: 0.1 },
-  'raw-min-out': { min: 0.5, max: 5.0, step: 0.1 },
   'raw-hl-tm': { min: 0.0, max: 300.0, step: 0.5 },
   'raw-solar-factor': { min: 0.001, max: 0.05, step: 0.0025 },
   'batt-soc': { min: 0.0, max: 30.0, step: 0.1 },
@@ -940,7 +945,7 @@ const STEP_EL = {
   'flow-z1-sp': 'flow-z1-sp-val', 'flow-z2-sp': 'flow-z2-sp-val',
   'raw-heat': 'raw-heat-val', 'raw-elec': 'raw-elec-val', 'raw-run': 'raw-run-val',
   'raw-out': 'raw-out-val', 'raw-room': 'raw-room-val', 'raw-delta': 'raw-delta-val',
-  'raw-max-out': 'raw-max-out-val', 'raw-min-out': 'raw-min-out-val', 'raw-hl-tm': 'raw-hl-tm-val','raw-solar-factor': 'raw-solar-factor-val',
+  'raw-hl-tm': 'raw-hl-tm-val','raw-solar-factor': 'raw-solar-factor-val',
   'batt-soc': 'batt-soc-val',
   'batt-max-dis': 'batt-max-dis-val',
   'cool-start-z1': 'cool-start-z1-val', 'cool-min-z1': 'cool-min-z1-val',
@@ -950,7 +955,7 @@ const STEP_EL = {
 let lastGraphUpdate = 0;
 let initialZoomDone = false;
 let userZoomed = false;
-let tempChart = null, freqChart = null, statusChart = null;
+let tempChart = null, freqChart = null, statusChart = null, outsideTempChart = null;
 
 // Manual Upload
 function triggerUpload() { document.getElementById('ota-file').click(); }
@@ -1169,6 +1174,39 @@ function initCharts() {
     }
   });
 
+  // Outside Temperature Chart
+  outsideTempChart = new Chart(document.getElementById('outsideTempChart').getContext('2d'), {
+    type: 'line',
+    data: { labels: [], datasets: [
+      { label: 'Ambient',    data: [], borderColor: '#00c8ff', borderWidth: 2, pointRadius: 0, tension: 0.25, fill: false },
+      { label: 'Liquid Pipe', data: [], borderColor: '#ffb020', borderWidth: 2, pointRadius: 0, tension: 0.25, fill: false },
+      { label: 'Condensing', data: [], borderColor: '#c084fc', borderWidth: 2, pointRadius: 0, tension: 0.25, fill: false }
+    ]},
+    options: {
+      ...commonOptions,
+      plugins: {
+        ...commonOptions.plugins,
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0f1525', borderColor: '#1e2d4a', borderWidth: 1, titleColor: '#8899bb', bodyColor: '#e2eaff',
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y !== null ? ctx.parsed.y.toFixed(1) : '—'}°C` }
+        }
+      },
+      scales: {
+        x: commonOptions.scales.x,
+        y: { 
+            ticks: { 
+                stepSize: 0.5,
+                color: '#8295b8', 
+                font: { family: "'JetBrains Mono', monospace", size: 10 }, 
+                callback: v => v.toFixed(1) + '°C'
+            }, 
+            grid: { color: '#1e2d4a' } 
+        }
+      }
+    }
+  });
+
   // Status Chart
   statusChart = new Chart(document.getElementById('statusChart').getContext('2d'), {
     type: 'line',
@@ -1267,7 +1305,7 @@ function initCharts() {
   const labels48 = Array.from({length: 48}, (_, i) => `${i % 24}:00`);
   const monoFont = { family: "'JetBrains Mono'", size: 11 };
   const xAxis = { 
-      min: 23.5, 
+      min: -0.5, 
       max: 47.5,
       ticks: { 
           autoSkip: false,
@@ -1305,7 +1343,7 @@ function initCharts() {
   };
   const odinZoomConfig = {
       limits: {
-          x: { min: 0, max: 47, minRange: 2 }
+          x: { min: -0.5, max: 47.5, minRange: 2 }
       },
       pan: {
           enabled: true, mode: 'x', modifierKey: 'alt', threshold: 10,
@@ -1338,13 +1376,17 @@ function initCharts() {
       }
   };
 
-  odinConsChart = new Chart(document.getElementById('odinConsChart').getContext('2d'), {
+odinConsChart = new Chart(document.getElementById('odinConsChart').getContext('2d'), {
       type: 'bar',
       data: {
           labels: labels48,
           datasets: [
-              { label: 'Expected',  data: [], backgroundColor: 'rgba(255,176,32,0.35)',  borderColor: '#ffb020', borderWidth: 1 },
-              { label: 'Actual',    data: [], backgroundColor: 'rgba(127,255,127,0.35)', borderColor: '#7fff7f', borderWidth: 1 }
+              // Stack 0: Expected values split into Grid and Solar
+              { label: 'Expected (Grid)',  data: [], backgroundColor: 'rgba(255,176,32,0.35)',  borderColor: '#ffb020', borderWidth: 1, stack: 'Stack 0' },
+              { label: 'Expected (Solar)', data: [], backgroundColor: 'rgba(144, 213, 255, 0.35)',  borderColor: '#57B9FF', borderWidth: 1, stack: 'Stack 0' },
+
+              // Stack 1: Actual values stand next to the expected stack
+              { label: 'Actual',           data: [], backgroundColor: 'rgba(127,255,127,0.35)', borderColor: '#7fff7f', borderWidth: 1, stack: 'Stack 1' }
           ]
       },
       options: {
@@ -1354,9 +1396,14 @@ function initCharts() {
               zoom: odinZoomConfig
           },
           scales: {
-              x: xAxis,
-              y: { ticks: { color: '#8295b8', font: monoFont }, grid: { color: '#1e2d4a' },
-                   title: { display: true, text: 'kW', color: '#8295b8' } }
+              // Enable stacking on both axes for the stacked layout to work properly
+              x: { ...xAxis, stacked: true },
+              y: { 
+                  stacked: true, 
+                  ticks: { color: '#8295b8', font: monoFont }, 
+                  grid: { color: '#1e2d4a' },
+                  title: { display: true, text: 'kW', color: '#8295b8' } 
+              }
           }
       }
   });
@@ -1522,7 +1569,7 @@ odinProdChart = new Chart(document.getElementById('odinProdChart').getContext('2
       data: {
           labels: labels48,
           datasets: [
-              { label: 'Outside Temp (°C)', data: [], borderColor: '#38bdf8', borderWidth: 2,
+              { label: 'Ambient Temp (°C)', data: [], borderColor: '#38bdf8', borderWidth: 2,
                 backgroundColor: 'transparent', fill: false, tension: 0.3, pointRadius: 0, spanGaps: true,
                 yAxisID: 'yTemp' },
               { label: 'Solar Irradiance (W/m²)', data: [], borderColor: '#fde68a', borderWidth: 2,
@@ -1611,21 +1658,21 @@ function updateOdinCharts() {
         }
 
         for (let h = 0; h < 24; h++) {
-            // Map live history to the "Today" portion of the 48h array (indexes 24-47)
-            if (hourlyDeltaCons[h] !== null) actualConsByHour[h + 24] = hourlyDeltaCons[h];
-            if (hourlyDeltaProd[h] !== null) actualProdByHour[h + 24] = hourlyDeltaProd[h];
-            if (firstTempByHour[h] !== null) actualTempByHour[h + 24] = firstTempByHour[h];
+            // Map live history to the "Today" portion (indexes 0-23)
+            if (hourlyDeltaCons[h] !== null) actualConsByHour[h] = hourlyDeltaCons[h];
+            if (hourlyDeltaProd[h] !== null) actualProdByHour[h] = hourlyDeltaProd[h];
+            if (firstTempByHour[h] !== null) actualTempByHour[h] = firstTempByHour[h];
         }
 
         const currentLocalHour = new Date().getHours();
-        for (let h = 24; h < 48; h++) {
-            // Hide incomplete energy bars for both the current AND future hours
-            if ((h - 24) >= currentLocalHour) {
+        for (let h = 0; h < 48; h++) {
+            // Hide incomplete energy bars for anything equal to or beyond the current hour
+            if (h >= currentLocalHour) {
                 actualConsByHour[h] = null;
                 actualProdByHour[h] = null;
             }
             // Hide the temperature line ONLY for strictly future hours
-            if ((h - 24) > currentLocalHour) {
+            if (h > currentLocalHour) {
                 actualTempByHour[h] = null;
             }
         }
@@ -1643,26 +1690,47 @@ function updateOdinCharts() {
     const weather       = odinDataCache ? (odinDataCache.weather    || new Array(48).fill(null)) : new Array(48).fill(null);
     const solar         = odinDataCache ? (odinDataCache.solar      || new Array(48).fill(null)) : new Array(48).fill(null);
     
-    const pricesKwh     = prices.map(p => p !== null ? parseFloat((p / 1000).toFixed(5)) : null);
+    const pricesKwh     = prices.map(p => p !== null ? parseFloat((p).toFixed(5)) : null);
 
+    // Initialize arrays for costs and consumption splits
     const actualCost = new Array(48).fill(null);
+    const expConsGrid = new Array(48).fill(null);
+    const expConsSolar = new Array(48).fill(null);
+    
     const solarKwp = odinDataCache?.last_run?.used_solar_kwp || 0;
 
+    // Single loop to process all hourly data
     for (let h = 0; h < 48; h++) {
-        const cons  = actualConsByHour[h];
-        const price = prices[h];
+        // Calculate the solar production once per hour
         const sol_wm2 = solar[h] || 0; 
+        const expected_solar_kwh = sol_wm2 * (solarKwp / 1000);
+
+        // --- 1. Actual Cost Calculation ---
+        const actual_cons = actualConsByHour[h];
+        const price = prices[h];
         
-        if (cons !== null && price !== null) {
-            const expected_solar_kwh = sol_wm2 * (solarKwp / 1000);
-            const net_cons = Math.max(0, cons - expected_solar_kwh);            
-            actualCost[h] = parseFloat((net_cons * price / 1000).toFixed(4));
+        if (actual_cons !== null && price !== null) {
+            const net_cons = Math.max(0, actual_cons - expected_solar_kwh);            
+            actualCost[h] = parseFloat((net_cons * price).toFixed(4));
+        }
+
+        // --- 2. Expected Consumption Split Calculation ---
+        const exp_cons = expCons[h];
+        
+        if (exp_cons !== null) {
+            // Solar used cannot exceed the total expected consumption for that hour
+            const solar_used = Math.min(exp_cons, expected_solar_kwh);
+            const grid_used = exp_cons - solar_used;
+
+            expConsSolar[h] = parseFloat(solar_used.toFixed(2));
+            expConsGrid[h] = parseFloat(grid_used.toFixed(2));
         }
     }
 
     // Energy Cons chart
-    odinConsChart.data.datasets[0].data = expCons;
-    odinConsChart.data.datasets[1].data = actualConsByHour;
+    odinConsChart.data.datasets[0].data = expConsGrid;
+    odinConsChart.data.datasets[1].data = expConsSolar;
+    odinConsChart.data.datasets[2].data = actualConsByHour;
     odinConsChart.update('none');
     
     // Energy Prod chart
@@ -1680,7 +1748,7 @@ function updateOdinCharts() {
     // causing index 24 (hour 0 today) to appear off-screen until the user scrolls.
     if (!odinZoomed) {
         [odinConsChart, odinProdChart, odinCostChart, odinBattChart].forEach(c => {
-            if (c) c.zoomScale('x', {min: 23.5, max: 47.5}, 'none');
+            if (c) c.zoomScale('x', {min: -0.5, max: 23.5}, 'none');
         });
     }
 
@@ -1714,24 +1782,14 @@ function updateOdinCharts() {
     const rs = odinDataCache && odinDataCache.last_run;
     const statsBlock = document.getElementById('run-stats-block');
     if (rs && statsBlock && rs.execution_ms > 0) {
-        statsBlock.style.display = '';
-        document.getElementById('rs-exec').textContent    = rs.execution_ms + ' ms';
-        document.getElementById('rs-hloss').textContent   = rs.heat_loss.toFixed(3) + ' kW/K';
-        document.getElementById('rs-cop').textContent     = rs.base_cop.toFixed(2);
-        document.getElementById('rs-tmass').textContent   = rs.thermal_mass.toFixed(1) + ' kWh/K';
-        document.getElementById('rs-econs').textContent   = rs.exp_consumption.toFixed(2) + ' kWh';
-        document.getElementById('rs-eprod').textContent   = rs.exp_production.toFixed(2) + ' kWh';
-        document.getElementById('rs-solar').textContent         = rs.exp_solar.toFixed(2) + ' kWh';
-        document.getElementById('rs-solar-total').textContent   = (rs.exp_solar_total || rs.exp_solar).toFixed(2) + ' kWh';
-        document.getElementById('rs-cost').textContent    = '€' + rs.total_cost.toFixed(4);
-        document.getElementById('rs-costtax').textContent = '€' + rs.total_cost_tax.toFixed(4);
+        updateRunStatsUI(rs);
     }
 
     // Auto-focus to today (index 24-47) unless user has manually zoomed/panned
     if (!odinZoomed) {
         [odinConsChart, odinProdChart, odinCostChart, odinTempChart, 
         odinBattChart, odinPriceChart, odinWeatherChart].forEach(c => {
-            if (c) c.zoomScale('x', {min: 23.5, max: 47.5}, 'none');
+            if (c) c.zoomScale('x', {min: -0.5, max: 23.5}, 'none');
         });
     }
 }
@@ -1755,6 +1813,7 @@ function updateCharts(d) {
     history.bin_comp.shift(); history.bin_boost.shift(); history.bin_defrost.shift();
     history.bin_pump.shift(); history.bin_in1.shift(); history.bin_in6.shift();
     history.cons.shift(); history.prod.shift();
+    history.outside.shift(); history.liquid_pipe.shift(); history.condensing.shift();
   }
 
   history.timestamps.push(now);
@@ -1767,6 +1826,9 @@ function updateCharts(d) {
   history.z1flow.push(d.z1_flow_temp_target ?? null);
   history.z2flow.push(d.z2_flow_temp_target ?? null);
   history.freq.push(d.compressor_frequency ?? null);
+  history.outside.push(d.outside_temp ?? null);
+  history.liquid_pipe.push(d.liquid_pipe_temp ?? null);
+  history.condensing.push(d.condensing_temp ?? null);
   history.cons.push(d.daily_total_energy_consumption ?? null);
   history.prod.push(d.daily_computed_output_power ?? null);
   
@@ -1781,7 +1843,7 @@ function updateCharts(d) {
 
   const labels = history.timestamps.map(t => new Date(t).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }));
 
-  [tempChart, freqChart, statusChart].forEach(c => c.data.labels = labels);
+  [tempChart, freqChart, outsideTempChart, statusChart].forEach(c => c.data.labels = labels);
 
   tempChart.data.datasets[0].data = history.feed;
   tempChart.data.datasets[1].data = history.ret;
@@ -1807,6 +1869,10 @@ function updateCharts(d) {
   
   freqChart.data.datasets[0].data = history.freq;
 
+  outsideTempChart.data.datasets[0].data = history.outside;
+  outsideTempChart.data.datasets[1].data = history.liquid_pipe;
+  outsideTempChart.data.datasets[2].data = history.condensing;
+
   statusChart.data.datasets[0].data = history.mode.map(() => 7);
   statusChart.data.datasets[1].data = history.bin_comp.map(() => 6);
   statusChart.data.datasets[2].data = history.bin_boost.map(() => 5);
@@ -1821,7 +1887,7 @@ function updateCharts(d) {
     
     if (startIndex !== -1 && startIndex < labels.length) {
       const minLabel = labels[startIndex];
-      [tempChart, freqChart, statusChart].forEach(c => {
+      [tempChart, freqChart, outsideTempChart, statusChart].forEach(c => {
         c.options.scales.x.min = minLabel;
         c.options.scales.x.max = null; 
       });
@@ -1831,6 +1897,7 @@ function updateCharts(d) {
 
   tempChart.update();
   freqChart.update();
+  outsideTempChart.update();
   statusChart.update();
   updateOdinCharts();
 }
@@ -2164,8 +2231,6 @@ function render(d) {
   seedPending('raw-out', d.raw_avg_outside_temp);
   seedPending('raw-room', d.raw_avg_room_temp);
   seedPending('raw-delta', d.raw_delta_room_temp);
-  seedPending('raw-max-out', d.raw_max_output);
-  seedPending('raw-min-out', d.raw_min_output ?? 3.0);
   seedPending('raw-hl-tm', d.raw_hl_tm_product);
   seedPending('raw-solar-factor', d.raw_solar_factor);
   seedPending('batt-soc', d.battery_soc_kwh);
@@ -2381,10 +2446,10 @@ async function sendPhysics(btn) {
   btn.classList.add('sending');
   let c = 0;
   try {
-    const physicsKeys = ['raw-heat','raw-elec','raw-run','raw-out','raw-room','raw-delta','raw-max-out','raw-min-out','raw-hl-tm','raw-solar-factor','batt-soc','batt-max-dis'];
+    const physicsKeys = ['raw-heat','raw-elec','raw-run','raw-out','raw-room','raw-delta','raw-hl-tm','raw-solar-factor','batt-soc','batt-max-dis'];
     const physicsMap = { 'raw-heat': 'raw_heat_produced', 'raw-elec': 'raw_elec_consumed', 'raw-run': 'raw_runtime_hours',
       'raw-out': 'raw_avg_outside_temp', 'raw-room': 'raw_avg_room_temp', 'raw-delta': 'raw_delta_room_temp',
-      'raw-max-out': 'raw_max_output', 'raw-min-out': 'raw_min_output', 'raw-hl-tm': 'raw_hl_tm_product', 'raw-solar-factor': 'raw_solar_factor',
+      'raw-hl-tm': 'raw_hl_tm_product', 'raw-solar-factor': 'raw_solar_factor',
       'batt-soc': 'battery_soc_kwh', 'batt-max-dis': 'battery_max_discharge_kw' };
     for (const k of physicsKeys) {
       if (hasChanged(k)) {
@@ -2412,20 +2477,14 @@ async function runOdinSolver() {
         if (!isNaN(parsed) && parsed >= 0 && parsed <= 23) solveHour = parsed;
     }
 
-    const profileMap = ["ufh", "radiators", "fancoil"];
-    const profileStr = profileMap[latestState.sel_heating_system_type] || "ufh";
-
     const payload = {
         params: {
-            heating_profile: profileStr,
             heat_produced: pending['raw-heat'] || latestState.raw_heat_produced || 0,
             elec_consumed: pending['raw-elec'] || latestState.raw_elec_consumed || 0,
             runtime_hours: pending['raw-run'] || latestState.raw_runtime_hours || 0,
             avg_outside_temp: pending['raw-out'] || latestState.raw_avg_outside_temp || 7,
             avg_room_temp: pending['raw-room'] || latestState.raw_avg_room_temp || 20,
             delta_room_temp: pending['raw-delta'] || latestState.raw_delta_room_temp || 0,
-            max_output: pending['raw-max-out'] || latestState.raw_max_output || 8.0,
-            min_output: pending['raw-min-out'] ?? latestState.raw_min_output ?? 3.0,
             hl_tm_product: pending['raw-hl-tm'] ?? latestState.raw_hl_tm_product ?? 0.0,
             passive_solar_gain_factor: pending['raw-solar-factor'] || latestState.raw_solar_factor || 0.015,
             current_room_temp: latestState.z1_current_temp || 20.0,
@@ -2451,22 +2510,20 @@ async function runOdinSolver() {
         if (data.success) {
           if (!odinDataCache) odinDataCache = {};
             
-            // Safely inject the 24h solver data into the "Today" (24-47) portion of the cache
-            const inject48 = (key, new24, preserveCurrentHour = false) => {
+            // Safely inject the 48h solver data into the cache directly
+            const inject48 = (key, new48, preserveCurrentHour = false) => {
                 if (!odinDataCache[key] || odinDataCache[key].length !== 48) {
-                    let old = odinDataCache[key] || [];
                     odinDataCache[key] = new Array(48).fill(null);
-                    if (old.length === 24) {
-                        for(let i=0; i<24; i++) odinDataCache[key][i+24] = old[i];
-                    }
                 }
-                if (new24 && new24.length >= 24) {
-                    for (let i = 0; i < 24; i++) {
-                        let isCurrent = (i === solveHour && solveHour !== 0);
-                        if (preserveCurrentHour && isCurrent) continue;
+                if (new48 && new48.length >= 48) {
+                    for (let i = 0; i < 48; i++) {
+                        let isCurrent = (i === solveHour);
+                        
+                        // Protect the current hour from jumping mid-hour if requested
+                        if (preserveCurrentHour && isCurrent && odinDataCache[key][i] !== null) continue;
 
-                        if (new24[i] !== null && new24[i] !== undefined) {
-                            odinDataCache[key][i + 24] = new24[i];
+                        if (new48[i] !== null && new48[i] !== undefined) {
+                            odinDataCache[key][i] = new48[i];
                         }
                     }
                 }
@@ -2484,7 +2541,6 @@ async function runOdinSolver() {
             inject48('energy_consumption', data.energy_consumption);
             inject48('heat_production', data.heat_production);
             inject48('expected_cost', data.expected_cost);
-            inject48('expected_cost_with_tax', data.expected_cost_with_tax);
             inject48('battery_discharge', data.battery_discharge); 
 
             odinDataCache.last_run = {
@@ -2494,10 +2550,10 @@ async function runOdinSolver() {
                 thermal_mass:    data.used_thermal_mass            || 0,
                 exp_consumption: data.total_consumption_kwh        || 0,
                 exp_production:  data.total_heat_produced_kwh      || 0,
-                exp_solar:       data.total_solar_generation_kwh   || 0,
-                exp_solar_total: data.total_solar_total_kwh        || data.total_solar_generation_kwh || 0,
-                total_cost:      data.total_cost_eur               || 0,
-                total_cost_tax:  data.total_cost_with_tax_eur      || 0
+                exp_solar:       data.total_solar_used_kwh         || 0,
+                exp_solar_total: data.total_solar_kwh              || data.total_solar_used_kwh || 0,
+                total_cost:      data.total_cost                   || 0,
+                used_solar_kwp:  data.used_solar_kwp               || 0
             };
 
             updateOdinCharts();
@@ -2666,7 +2722,7 @@ function updateStatus(text, color) {
 }
 
 function syncScales(chart, min, max) {
-  [tempChart, freqChart, statusChart].forEach(c => {
+  [tempChart, freqChart, statusChart, outsideTempChart].forEach(c => {
     if (c && c !== chart) {
       c.options.scales.x.min = min;
       c.options.scales.x.max = max;
@@ -2677,7 +2733,7 @@ function syncScales(chart, min, max) {
 
 function resetAllZoom() {
   userZoomed = false;
-  [tempChart, freqChart, statusChart].forEach(c => {
+  [tempChart, freqChart, statusChart, outsideTempChart].forEach(c => {
     if (c) {
       c.options.scales.x.min = null; 
       c.options.scales.x.max = null;
@@ -2692,7 +2748,29 @@ function showResetButton() {
   document.getElementById('btn-reset-zoom').style.display = 'block';
 }
 
-let odinZoomed = false;
+let lastRunSignature = "";
+
+function updateRunStatsUI(lr) {
+    if (!lr) return;
+    document.getElementById('run-stats-block').style.display = 'block';
+
+    const currentSig = `${lr.execution_ms}-${lr.total_cost}-${lr.exp_consumption}`;
+    if (currentSig !== lastRunSignature) {
+        lastRunSignature = currentSig;
+        const now = new Date();
+        document.getElementById('rs-time').innerText = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    }
+
+    document.getElementById('rs-exec').innerText = lr.execution_ms + " ms";
+    document.getElementById('rs-hloss').innerText = lr.heat_loss.toFixed(3) + " kW/K";
+    document.getElementById('rs-cop').innerText = lr.base_cop.toFixed(2);
+    document.getElementById('rs-tmass').innerText = lr.thermal_mass.toFixed(1) + " kWh/K";
+    document.getElementById('rs-econs').innerText = lr.exp_consumption.toFixed(2) + " kWh";
+    document.getElementById('rs-eprod').innerText = lr.exp_production.toFixed(2) + " kWh";
+    document.getElementById('rs-solar').innerText = lr.exp_solar.toFixed(2) + " kWh";
+    document.getElementById('rs-solar-total').innerText = lr.exp_solar_total.toFixed(2) + " kWh";
+    document.getElementById('rs-cost').innerHTML = "&euro;" + lr.total_cost.toFixed(4);
+}
 
 function syncOdinScales(sourceChart) {
   const min = sourceChart.scales.x.min;
@@ -2706,11 +2784,13 @@ function syncOdinScales(sourceChart) {
   showOdinResetButton();
 }
 
+let odinZoomed = false;
+
 function resetOdinZoom() {
     odinZoomed = false;
     [odinConsChart, odinProdChart, odinCostChart, odinTempChart, 
      odinBattChart, odinPriceChart, odinWeatherChart].forEach(c => {
-        if (c) c.zoomScale('x', {min: 23.5, max: 47.5}, 'none');
+        if (c) c.zoomScale('x', {min: -0.5, max: 23.5}, 'none');
     });
     document.getElementById('btn-reset-zoom-odin').style.display = 'none';
 }
@@ -2730,6 +2810,7 @@ async function loadServerHistory() {
     history.z1flow = []; history.z2flow = []; history.freq = []; history.mode = [];
     history.bin_comp = []; history.bin_boost = []; history.bin_defrost = [];
     history.bin_pump = []; history.bin_in1 = []; history.bin_in6 = []; history.cons = []; history.prod = [];
+    history.outside = []; history.liquid_pipe = []; history.condensing = [];
 
     const serverLastTs = data[data.length - 1][0] * 1000; 
     const browserNow = Date.now();
@@ -2764,12 +2845,15 @@ async function loadServerHistory() {
       history.bin_in6.push((flags & (1 << 5)) ? 1 : 0);
       history.cons.push(row.length > 11 ? getF(row[11]) : null);
       history.prod.push(row.length > 12 ? getF(row[12]) : null);
+      history.outside.push(row.length > 13 ? getF(row[13]) : null);
+      history.liquid_pipe.push(row.length > 14 ? getF(row[14]) : null);
+      history.condensing.push(row.length > 15 ? getF(row[15]) : null);
       
       const modeNum = (flags >> 6) & 0x0F;
       history.mode.push(MODE_MAP[modeNum] || "Unknown");
     });
     
-    tempChart.update('none'); freqChart.update('none'); statusChart.update('none');
+    tempChart.update('none'); freqChart.update('none'); statusChart.update('none'); outsideTempChart.update('none');
   } catch(e) { console.error("History fetch failed", e); }
 }
 
